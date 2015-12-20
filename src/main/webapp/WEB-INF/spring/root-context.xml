@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="
+						http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-3.0.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+						http://www.springframework.org/schema/data/jpa
+					    http://www.springframework.org/schema/data/jpa/spring-jpa-1.2.xsd">
+
+	<!-- <tx:annotation-driven transaction-manager="transactionManager" /> -->
+	<bean
+		class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
+	<!-- Root Context: defines shared resources visible to all other web components 
+		master branch update2 -->
+	<context:annotation-config />
+
+	<context:component-scan base-package="org.secondapp">
+	</context:component-scan>
+
+
+	<bean id="mysqlManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="mysql" />
+	</bean>
+	
+	<bean id="mysql2ManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="mysql2" />
+	</bean>
+
+	<bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="mysqlManagerFactory" />
+	</bean>
+	<bean id="tx2Manager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="mysql2ManagerFactory" />
+	</bean>
+
+	<jpa:repositories base-package="org.secondapp.repository" entity-manager-factory-ref="mysqlManagerFactory" transaction-manager-ref="txManager" />
+	<jpa:repositories base-package="org.secondapp.repository2" entity-manager-factory-ref="mysql2ManagerFactory" transaction-manager-ref="tx2Manager" />
+
+	<tx:annotation-driven transaction-manager="txManager" />
+	<tx:annotation-driven transaction-manager="tx2Manager" />
+
+</beans>
